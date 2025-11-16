@@ -1,0 +1,76 @@
+---
+title: "Belay, a flexible MicroPython interface for experimental hardware control"
+authors: 
+  - name: Mikkel Roald-Arbøl
+    orcid: 0000-0003-2550-0012
+    email: "science@roald-arboel.com"
+    url: "https://roald-arboel.com"
+    affiliations: 
+      - name: University of Bonn
+        department: Department of Biology
+        city: Bonn
+        postal-code: 53115
+  - name: Brian Pugh
+abstract: |
+  Behavioural experiments often require specific hardware. Recent years have seen the increased availability of consumer-grade electronics which has led to increased adoption in experimental research. However, interfacing with microcontrollers has remained difficult. Here, we present Belay, a Python package that provides an accessible interface to with microcontrollers running Micropython. We compare it to existing libraries and solutions. We also show that performance remains good in terms of latency. We also show the versatility of using Belay, by showcasing its use from Python scripts, Jupyter Notebooks and within the visual reactive programming language Bonsai.
+acknowledgments: |
+  I would like to thank a lot of people.
+license:
+  id: CC-BY-4.0
+  name: CC-BY-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+github: https://github.com/brianpugh/belay
+open_access: true
+keywords:
+  - Software
+  - Hardware
+  - Micropython
+  - Experimental control
+bibliography: references.bib
+---
+
+## Introduction
+
+Behavioural experiments often require specific hardware. Recent years have seen the increased availability of consumer-grade electronics which has led to increased adoption in experimental research. However, interfacing with microcontrollers has remained difficult. Here, we present Belay, a Python package that provides an accessible interface to with microcontrollers running Micropython. We compare it to existing libraries and solutions. We also show that performance remains good in terms of latency. We also show the versatility of using Belay, by showcasing its use from Python scripts, Jupyter Notebooks and within the visual reactive programming language Bonsai [@Lopes2015].
+
+LabNet [@Schatz2022], Autopilot [@Saunders2022], Bpod [@zotero-item-7401]
+
+## Results
+
+### Package capabilities
+
+- Package manager
+
+### Integration with Bonsai
+
+### Flexibility
+- MicroPython, CircuitPython
+- Python, Jupyter Notebook, Bonsai
+- MicroPython: Pyboard, ESP32, ESP8266, Raspberry Pi Pico, BBC micro:bit, STM32 development boards, and a few Arduino boards such as the Nano 33 BLE, Nano RP2040, Giga R1, and Portenta H7
+- CircuitPython: [list of supported boards](https://circuitpython.org/downloads)
+
+- Table over different software interfaces:
+  - Microcontroller vs. single-board computer
+  - Limited to specific hardware
+  - Arduino vs. MicroPython/CircuitPython
+  - Python interface
+  - Integration with Bonsai
+  - Connectivity (serial/wired, WiFi, Bluetooth, radio)
+
+### Performance
+
+- Set/ping test
+- Read and set GPIO
+- Stress test
+
+### Examples
+
+## Discussion
+
+This work showcases the utility of Belay, a Python package for powerful control of Micropython-based microcontrollers. Belay is a general-purpose package, which makes it a powerful tool for experimental science broadly. The fact that it can be used in standard Python scripts, interactively in Jupyter Notebooks or in Bonsai workflows highlights the versatility.
+
+Because of it being open-source and general-purpose, the community around it entails many more users than just those engaged in research, leading to a larger community with greater knowledge sharing.
+
+## Materials & Methods
+
+## Data availability
