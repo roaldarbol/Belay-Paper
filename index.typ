@@ -634,7 +634,7 @@
     ),
   options: (
                           bibliography: (
-              ("refs.bib"),
+              ("references.bib"),
           ),
       parts: (
           ),
@@ -644,16 +644,14 @@
 
 = Introduction
 <introduction>
-Behavioural experiments often require specific hardware. Recent years have seen the increased availability of consumer-grade electronics which has led to increased adoption in experimental research. However, interfacing with microcontrollers has remained difficult. Here, we present Belay, a Python package that provides an accessible interface to with microcontrollers running Micropython. We compare it to existing libraries and solutions. We also show that performance remains good in terms of latency. We also show the versatility of using Belay, by showcasing its use from Python scripts, Jupyter Notebooks and within the visual reactive programming language Bonsai @Lopes2015.
+Behavioural experiments often require specific hardware. Recent years have seen the increased availability of consumer-grade electronics which has led to increased adoption in experimental research. However, interfacing with microcontrollers has remained difficult. Here, we present Belay, a Python package that provides an accessible interface to with microcontrollers running Micropython @zotero-6191. We compare it to existing libraries and solutions. We also show that performance remains good in terms of latency. We also show the versatility of using Belay, by showcasing its use from Python scripts, Jupyter Notebooks and within the visual reactive programming language Bonsai @Lopes2015.
 
-LabNet @Schatz2022, Autopilot @Saunders2022, Bpod @zotero-item-7401
+LabNet @Schatz2022, Autopilot @Saunders2022, Bpod @zotero-item-7401, Stytra @Stih2019, ArControl @Chen2017b
+
+Use of Python in neuroscience @Muller2015a, Micropython arguably best language @Maning2023.
 
 = Results
 <results>
-== Package capabilities
-<package-capabilities>
-== Integration with Bonsai
-<integration-with-bonsai>
 == Flexibility
 <flexibility>
 - MicroPython, CircuitPython
@@ -673,6 +671,73 @@ LabNet @Schatz2022, Autopilot @Saunders2022, Bpod @zotero-item-7401
   - Integration with Bonsai
   - Connectivity (serial/wired, WiFi, Bluetooth, radio)
 
+== Package capabilities
+<package-capabilities>
+- Package manager
+
+#figure([
+#set align(left)
+```python
+import belay
+```
+
+], caption: figure.caption(
+position: top, 
+[
+Import Belay
+]), 
+kind: "quarto-float-lst", 
+supplement: "Listing", 
+)
+<lst-import>
+
+
+#figure([
+#set align(left)
+```python
+from belay import Device
+
+class Pico(Device):
+    @Device.setup(autoinit=True)
+    def setup():
+        # Init on-board stuff
+        led = Pin('LED', Pin.OUT)
+        led.value(True)
+        temperature = None
+        
+    @Device.task
+    def _measure_temperature():
+        temperature = 72.5  # Or read from a sensor
+        return temperature
+
+    def measure_temperature(self):
+        # Runs on your computer - this is a regular method
+        self._temperature = self._measure_temperature()
+        return self._temperature
+
+    @property
+    def latest_temperature(self):
+        # Now you can just return the cached value
+        return self._temperature
+```
+
+], caption: figure.caption(
+position: top, 
+[
+Create class
+]), 
+kind: "quarto-float-lst", 
+supplement: "Listing", 
+)
+<lst-class>
+
+
+Writing something about subclassing (#ref(<lst-class>, supplement: [Listing])).
+
+== Integration with Bonsai
+<integration-with-bonsai>
+Bonsai @Lopes2015, BonVision @Lopes2021, real-time tracking using DeepLabCut @Mathis2018@Kane2020a and SLEAP @Pereira2022.
+
 == Performance
 <performance>
 - Set/ping test
@@ -686,6 +751,8 @@ LabNet @Schatz2022, Autopilot @Saunders2022, Bpod @zotero-item-7401
 This work showcases the utility of Belay, a Python package for powerful control of Micropython-based microcontrollers. Belay is a general-purpose package, which makes it a powerful tool for experimental science broadly. The fact that it can be used in standard Python scripts, interactively in Jupyter Notebooks or in Bonsai workflows highlights the versatility.
 
 Because of it being open-source and general-purpose, the community around it entails many more users than just those engaged in research, leading to a larger community with greater knowledge sharing.
+
+#cite(<Pearce2017>, form: "prose");, #cite(<Pearce2020>, form: "prose");, #cite(<Chagas2017a>, form: "prose")
 
 = Materials & Methods
 <materials-methods>

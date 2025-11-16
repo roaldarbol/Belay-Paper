@@ -6,6 +6,7 @@ platforms = ["osx-64"]
 version = "0.1.0"
 
 [tasks]
+preview = "quarto preview"
 
 [dependencies]
 quarto = ">=1.8.26,<2"
