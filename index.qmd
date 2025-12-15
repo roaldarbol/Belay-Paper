@@ -31,37 +31,117 @@ bibliography: references.bib
 
 ## Introduction
 
-Behavioural experiments often require specific hardware. Recent years have seen the increased availability of consumer-grade electronics which has led to increased adoption in experimental research. However, interfacing with microcontrollers has remained difficult. Here, we present Belay, a Python package that provides an accessible interface to with microcontrollers running Micropython [@zotero-6191]. We compare it to existing libraries and solutions. We also show that performance remains good in terms of latency. We also show the versatility of using Belay, by showcasing its use from Python scripts, Jupyter Notebooks and within the visual reactive programming language Bonsai [@Lopes2015].
+Main problems:
 
-LabNet [@Schatz2022], Autopilot [@Saunders2022], Bpod [@zotero-item-7401], Stytra [@Stih2019], ArControl [@Chen2017b]
+- Proprietary hardware is expensive and inflexible
+- Many tools combine hardware and software control
+- Downsides to Arduino:
+  - Requires researchers to learn another programming language
+  - Needs to recompile firmware on each iteration, slowing down prototyping
+- MicroPython is good.
+- But it is difficult to:
+  - Connect to board
+  - Manage dependencies
+  - Produce reproducible projects
 
-Use of Python in neuroscience [@Muller2015a], Micropython arguably best language [@Maning2023].
+Behavioural experiments frequently require precise control of hardware—delivering stimuli, triggering rewards, recording sensor data, or synchronising events across devices. While commercial solutions exist, they are often expensive, inflexible, or poorly suited to the specific demands of a given experiment. The past decade has seen researchers increasingly turn to consumer-grade microcontrollers as an alternative [@Pearce2017; @Chagas2017a]. Boards such as the Arduino Uno, ESP32, and Raspberry Pi Pico offer a compelling combination of low cost, wide availability, and sufficient performance for many experimental applications.
+
+Despite this accessibility, a significant barrier remains: the difficulty of programming and interfacing with these devices. Traditional microcontroller development requires writing firmware in C or C++, compiling it for the target architecture, and flashing it to the device—a workflow unfamiliar to many scientists. Communication between the microcontroller and a host computer typically involves manual serial protocol design, adding further complexity. Several frameworks have emerged to address aspects of this problem. [LabNet, Autopilot, Bpod—brief characterisation of what each offers and its limitations, e.g., "Bpod provides a complete behavioural control system but is limited to specific hardware" or "Autopilot offers a Python interface but requires a Raspberry Pi as the controller"] LabNet [@Schatz2022], Autopilot [@Saunders2022], Bpod [@zotero-item-7401], Stytra [@Stih2019], ArControl [@Chen2017b]. These tools have advanced the field considerably, yet most either constrain researchers to particular hardware ecosystems, require learning specialised languages or frameworks, or lack straightforward integration with the Python-based analysis pipelines now common in neuroscience and behavioural research [@Muller2015a].
+
+MicroPython [@zotero-6191] offers a promising middle ground. As a lean implementation of Python 3 designed to run directly on microcontrollers, it allows scientists already familiar with Python to write embedded code without learning a new language. MicroPython supports a broad range of hardware—including the ESP32, ESP8266, Raspberry Pi Pico, Pyboard, BBC micro:bit and several Arduino boards—and provides direct access to low-level peripherals such as GPIO pins, I2C, SPI, and PWM. CircuitPython, a related fork maintained by Adafruit, [extends this compatibility further](https://circuitpython.org/downloads). However, while MicroPython lowers the barrier of writing microcontroller code, practical challenges remain. Deploying code to the device, managing third-party libraries, and establishing reliable communication between the microcontroller and host computer still require considerable boilerplate. There is no standard project structure, no dependency management analogous to pip or conda, and interactive development—common in scientific Python workflows—is cumbersome.
+
+Here we present Belay, a Python package that bridges this gap. Belay provides a high-level interface for controlling MicroPython and CircuitPython devices from a host computer, allowing researchers to define microcontroller functions as decorated Python methods that execute transparently on the device. This approach preserves the full flexibility of MicroPython while eliminating the need for manual serial communication, file transfer, or firmware management. Belay also introduces dependency management through standard `pyproject.toml` configuration, enabling reproducible project specifications that can be version-controlled and shared. A command-line interface complements the Python API, supporting interactive development, device inspection, and project synchronisation. We demonstrate Belay's use across multiple contexts—standalone Python scripts, interactive Jupyter notebooks [@Kluyver2016], and integration with the reactive visual programming language Bonsai [@Lopes2015]—and characterise its performance in terms of communication latency. Belay is open-source, pip-installable, and designed to lower the barrier for researchers seeking flexible, reproducible hardware control without abandoning familiar tools.
 
 ## Results
 
 ### Flexibility
-- MicroPython, CircuitPython
-- Python, Jupyter Notebook, Bonsai
-- MicroPython: Pyboard, ESP32, ESP8266, Raspberry Pi Pico, BBC micro:bit, STM32 development boards, and a few Arduino boards such as the Nano 33 BLE, Nano RP2040, Giga R1, and Portenta H7
-- CircuitPython: [list of supported boards](https://circuitpython.org/downloads)
-
-- Table over different software interfaces:
-  - Microcontroller vs. single-board computer
-  - Limited to specific hardware
-  - Arduino vs. MicroPython/CircuitPython
-  - Python interface
-  - Integration with Bonsai
   - Connectivity (serial/wired, WiFi, Bluetooth, radio)
 
 ### Package capabilities
+Belay provides two tools: A Python package and a command line interface (CLI) for interacting with boards via the command line. Belay is at its essence a bunch of syntactic sugar on top of the `pyserial` library (REF), providing the foundation for dynamically interacting with the board through Python.
+Creating a `Device` object connects to the board at the provided port. On connection, the device is ready to interactively receive and execute code while providing immediate feedback (REPL mode). On connection a few common imports are performed on-device. It is then possible to invoke commands
+A central feature of Belay is its use of decorators to simplify ... Belay provides four different decorators: `task`, `thread`, `setup` and `teardown`. The `task` decorator is used to specify methods that will be executed on the microcontroller.
+We commonly have a board with ..., and Python natively provides a great framework for this through its object-oriented programming (OOP) methods. 
 
-- Package manager
+The `setup` and `teardown` decorators are particularly useful (only?) for creating subclasssed devices. The `setup` decorator is a way of invoking code on-device in a global context, and is commonly used for imports and instantiating objects and hardware (@lst-setup). It takes an `autoinit` input, which can be used to ensure that the function is run on the board upon connection. Likewise, the `teardown` decorator is invoked just before the connection to the board is closed. It is commonly used to ensure that actuators such as LEDs or motors are turned off (@lst-teardown).
 
-::: {#lst-import}
-```{.python}
-import belay
+Subclassing also allows researchers to disambiguate code used to specify boards with their methods from the experimental logic by placing them in separate files. For example, we commonly have a `boards` folder and an `experiments` folder; this add the benefit that the same board can be used for various different experiments without having to re-code the board. Simply import it and use the methods in different arrangements, and you have a new experiment. 
+
+### Belay Package Manager (BPM)
+One aspect of ... is reproducilibity. Currently the micropython ecosystem doesn't have a strong central artifact registry like PyPI. Micropython packaging is described a bit more in detail [here](https://docs.micropython.org/en/latest/reference/packages.html#writing-publishing-packages). The Belay Package Manager (BPM) on the other hand uses `pyproject.toml` to manage dependencies on the from the host device, following standard practice in Python development, ensuring projects are easily reproducible, even when custom packages are being used. Unlike CPython, Micropython packages are small by their very nature, so instead of keeping track of hashes, Belay organizes the downloaded files in a user (and git-versioning) friendly way by bundling them into a `.belay` folder that should also be committed to Git. This also protects users in case an upstream unversioned project has breaking changes or gets removed completely. The Belay downloading/updating system is very flexible and handles basically any source format (git repositories, raw file(s), *etc.*), making it ideal for managing all Micropython dependencies.
+
+### Integration into Research Workflows
+One of the key strengths is how easily it can be integrated into workflows that are already widely used for experimental research. 
+
+Bonsai [@Lopes2015] is a visual programming language for experimental control. It supports a wide variety of hardware and software through an extension system. Examples of these include BonVision for presentation of visual stimuli [@Lopes2021], and real-time tracking using DeepLabCut [@Mathis2018; @Kane2020a] and SLEAP [@Pereira2022]. Bonsai provides interfaces to two other hardware protocols: Arduino through the Firmata protocol, and the Harp protocol [REF]. However, ... We have the Scripting.Python extension to interface with Belay through Bonsai, re-using the same board code written to be used in Python scripts or Jupyter Notebooks.
+Researchers can for example make use of the wide variety of sensors from Pimoroni or Adafruit by using Pimoroni's MicroPython firmware, or CircuitPython from Adafruit, and use these straight away in Bonsai.
+
+### Performance
+
+- Set/ping test
+- Read and set GPIO
+- Stress test
+
+### Examples
+
+## Discussion
+
+This work showcases the utility of Belay, a Python package for powerful control of Micropython-based microcontrollers. Belay is a general-purpose package, which makes it a powerful tool for experimental science broadly. The fact that it can be used in standard Python scripts, interactively in Jupyter Notebooks or in Bonsai workflows highlights the versatility.
+
+Belay and Micropython makes it versatile... it can be used in the lab from Bonsai on a Windows PC, or from a Raspberry Pi deployed on the edge *e.g.* in for fieldwork. It can be used from Python scripts or Jupyter Notebooks on any platform.
+
+Because of it being open-source and general-purpose, the community around it entails many more users than just those engaged in research, leading to a larger community with greater knowledge sharing.
+
+It is also possible to port existing Raspberry Pi projects to a Raspberry Pi Pico using an adapter (*e.g.* [from PiHut](https://thepihut.com/products/pico-to-pi-hat?variant=43157745434819)).
+
+@Pearce2017, @Pearce2020, @Chagas2017a
+
+[Resources](https://awesome-micropython.com/)
+
+## Materials & Methods
+
+## Data availability
+
+
+::: {#lst-cli-help}
+```{.sh}
+uv tool install belay
+pixi global install belay
 ```
-Import Belay
+Commands for Belay installation.
+::: 
+
+::: {#lst-}
+```{.python}
+
+```
+
+:::
+
+::: {#lst-simple}
+```{.python}
+ret = device("foo = 1 + 2")
+res = device("foo")
+```
+Simple code execution.
+:::
+
+::: {#lst-imports}
+```{.python}
+import os, machine
+from time import sleep
+from micropython import const
+from machine import ADC, I2C, Pin, PWM, SPI, Timer
+```
+Imports made automatically on connection.
+:::
+
+::: {#lst-task}
+```{.python}
+@device.task
+def foo(a):
+    return a * 2
+```
 :::
 
 ::: {#lst-class}
@@ -94,28 +174,111 @@ class Pico(Device):
 Create class
 :::
 
-Writing something about subclassing (@lst-class).
+::: {#lst-setup}
+```{.python}
+# Import Belay
+from belay import Device
 
-### Integration with Bonsai
-Bonsai [@Lopes2015], BonVision [@Lopes2021], real-time tracking using DeepLabCut [@Mathis2018; @Kane2020a] and SLEAP [@Pereira2022].
+# Create MyBoard class
+class MyBoard(Device):
+    @Device.setup(autoinit=True)
+    def setup():
+      led = Pin('LED', Pin.OUT)
+    
+    @Device.task
+    def led_toggle():
+      led.toggle()
 
+# Connect to board
+device = MyBoard("COM3")
 
-### Performance
+# Run `led_toggle` task
+device.led_toggle()
+```
+Using `setup`.
+:::
 
-- Set/ping test
-- Read and set GPIO
-- Stress test
+::: {#lst-teardown}
+```{.python}
+# Import Belay
+from belay import Device
 
-### Examples
+# Create MyBoard class
+class MyBoard(Device):
+    @Device.setup(autoinit=True)
+    def setup():
+      led = Pin('LED', Pin.OUT)
+    
+    @Device.task
+    def led_toggle():
+      led.toggle()
 
-## Discussion
+    @Device.teardown
+    def teardown():
+      led.set(FALSE) # Turn off LED
 
-This work showcases the utility of Belay, a Python package for powerful control of Micropython-based microcontrollers. Belay is a general-purpose package, which makes it a powerful tool for experimental science broadly. The fact that it can be used in standard Python scripts, interactively in Jupyter Notebooks or in Bonsai workflows highlights the versatility.
+# Connect to board
+device = MyBoard("COM3")
 
-Because of it being open-source and general-purpose, the community around it entails many more users than just those engaged in research, leading to a larger community with greater knowledge sharing.
+# Run `led_toggle` task
+device.led_toggle()
 
-@Pearce2017, @Pearce2020, @Chagas2017a
+# Connection to board is closed while running `teardown` first
+device.close()
+```
+Using `teardown`.
+:::
 
-## Materials & Methods
+::: {#lst-cli-help}
+```{.sh}
+❯ belay --help
+Usage: belay COMMAND
 
-## Data availability
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ add           Add a dependency to pyproject.toml.                            │
+│ cache         Perform action's on Belay's cache.                             │
+│ clean         Remove any downloaded dependencies if they are no longer       │
+│               specified in pyproject.                                        │
+│ exec          Execute python statement on-device.                            │
+│ info          Display device firmware information.                           │
+│ install       Sync dependencies and project itself to device.                │
+│ latency       Measure round-trip latency between host and device.            │
+│ new init      Create a new micropython project structure.                    │
+│ run           Run file on-device.                                            │
+│ select        Interactive board selector.                                    │
+│ sync          Synchronize a folder to device.                                │
+│ terminal      Open up an interactive REPL.                                   │
+│ update        Download new versions of dependencies.                         │
+│ --help -h     Display this message and exit.                                 │
+│ --version -v  Display application version.                                   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+::: 
+
+::: {#lst-class}
+```{.python}
+# Import Belay
+from belay import Device
+
+# Create MyBoard class
+class MyBoard(Device):
+    @Device.task
+    def foo(a):
+        return a * 2
+
+# Connect to board
+device = MyBoard("COM3")
+
+# Run `foo` task
+device.foo(5)
+```
+Create class
+:::
+
+::: {#lst-connect}
+```{.python}
+import belay
+device = belay.Device('COM3')
+```
+Connect to a board.
+:::
