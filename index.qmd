@@ -53,12 +53,8 @@ MicroPython [@zotero-6191] offers a promising middle ground. As a lean implement
 Here we present Belay, a Python package that bridges this gap. Belay provides a high-level interface for controlling MicroPython and CircuitPython devices from a host computer, allowing researchers to define microcontroller functions as decorated Python methods that execute transparently on the device. This approach preserves the full flexibility of MicroPython while eliminating the need for manual serial communication, file transfer, or firmware management. Belay also introduces dependency management through standard `pyproject.toml` configuration, enabling reproducible project specifications that can be version-controlled and shared. A command-line interface complements the Python API, supporting interactive development, device inspection, and project synchronisation. We demonstrate Belay's use across multiple contexts—standalone Python scripts, interactive Jupyter notebooks [@Kluyver2016], and integration with the reactive visual programming language Bonsai [@Lopes2015]—and characterise its performance in terms of communication latency. Belay is open-source, pip-installable, and designed to lower the barrier for researchers seeking flexible, reproducible hardware control without abandoning familiar tools.
 
 ## Results
-
-### Flexibility
-  - Connectivity (serial/wired, WiFi, Bluetooth, radio)
-
 ### Package capabilities
-Belay provides two tools: A Python package and a command line interface (CLI) for interacting with boards via the command line. Belay is at its essence a bunch of syntactic sugar on top of the `pyserial` library (REF), providing the foundation for dynamically interacting with the board through Python.
+Belay solves two Micropython based issues: (1)  provides two tools: A Python package and a command line interface (CLI) for interacting with boards via the command line. Belay is at its essence a bunch of syntactic sugar on top of the `pyserial` library (REF), providing the foundation for dynamically interacting with the board through Python.
 Creating a `Device` object connects to the board at the provided port. On connection, the device is ready to interactively receive and execute code while providing immediate feedback (REPL mode). On connection a few common imports are performed on-device. It is then possible to invoke commands
 A central feature of Belay is its use of decorators to simplify ... Belay provides four different decorators: `task`, `thread`, `setup` and `teardown`. The `task` decorator is used to specify methods that will be executed on the microcontroller.
 We commonly have a board with ..., and Python natively provides a great framework for this through its object-oriented programming (OOP) methods. 
@@ -75,6 +71,8 @@ One of the key strengths is how easily it can be integrated into workflows that 
 
 Bonsai [@Lopes2015] is a visual programming language for experimental control. It supports a wide variety of hardware and software through an extension system. Examples of these include BonVision for presentation of visual stimuli [@Lopes2021], and real-time tracking using DeepLabCut [@Mathis2018; @Kane2020a] and SLEAP [@Pereira2022]. Bonsai provides interfaces to two other hardware protocols: Arduino through the Firmata protocol, and the Harp protocol [REF]. However, ... We have the Scripting.Python extension to interface with Belay through Bonsai, re-using the same board code written to be used in Python scripts or Jupyter Notebooks.
 Researchers can for example make use of the wide variety of sensors from Pimoroni or Adafruit by using Pimoroni's MicroPython firmware, or CircuitPython from Adafruit, and use these straight away in Bonsai.
+
+Stytra [@Stih2019] also has support for custrom Arduino and Micropython devices, so Belay could also be used in combination with Stytra to facilitate easier connections with Micropython boards.
 
 ### Performance
 
@@ -97,6 +95,8 @@ It is also possible to port existing Raspberry Pi projects to a Raspberry Pi Pic
 @Pearce2017, @Pearce2020, @Chagas2017a
 
 [Resources](https://awesome-micropython.com/)
+
+- Connectivity (serial/wired, WiFi, Bluetooth, radio)
 
 ## Materials & Methods
 
