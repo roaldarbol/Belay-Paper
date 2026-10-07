@@ -54,7 +54,7 @@ Here we present Belay, a Python package that bridges this gap. Belay provides a 
 
 ## Results
 ### Package capabilities
-Belay solves two Micropython based issues: (1)  provides two tools: A Python package and a command line interface (CLI) for interacting with boards via the command line. Belay is at its essence a bunch of syntactic sugar on top of the `pyserial` library (REF), providing the foundation for dynamically interacting with the board through Python.
+Belay solves two Micropython based issues: (1) provides two tools: A Python package and a command line interface (CLI) for interacting with boards via the command line. Belay is at its essence a bunch of syntactic sugar on top of the pySerial library (REF), providing the foundation for dynamically interacting with the board through Python.
 Creating a `Device` object connects to the board at the provided port. On connection, the device is ready to interactively receive and execute code while providing immediate feedback (REPL mode). On connection a few common imports are performed on-device. It is then possible to invoke commands
 A central feature of Belay is its use of decorators to simplify ... Belay provides four different decorators: `task`, `thread`, `setup` and `teardown`. The `task` decorator is used to specify methods that will be executed on the microcontroller.
 We commonly have a board with ..., and Python natively provides a great framework for this through its object-oriented programming (OOP) methods. 
@@ -282,3 +282,5 @@ device = belay.Device('COM3')
 ```
 Connect to a board.
 :::
+
+- Teaching, single language
